@@ -1,0 +1,101 @@
+================================================================================
+                    DOKUMENTACJA PROJEKTU: POGODNA APLIKACJA
+================================================================================
+Opis: Skrypt powłoki Bash służący do automatycznej aktualizacji tapety systemowej 
+      w oparciu o bieżące warunki pogodowe dla zdefiniowanej lokalizacji. 
+      Aplikacja pobiera dane pogodowe, generuje półprzezroczysty widget graficzny 
+      i nakłada go na tło dopasowane do aktualnej pogody.
+
+--------------------------------------------------------------------------------
+1. WYMAGANIA I ZALEŻNOŚCI
+--------------------------------------------------------------------------------
+Do poprawnego działania skryptu w środowisku Linux wymagane jest zainstalowanie 
+następujących pakietów:
+
+  * curl        - pobieranie danych z API wttr.in oraz ikon pogodowych
+  * jq          - parsowanie odpowiedzi JSON z serwisu pogodowego
+  * imagemagick - generowanie widgetu i operacje na plikach graficznych (convert)
+  * zenity      - obsługa okien dialogowych (wymagane tylko dla opcji -g)
+
+Instalacja zależności (systemy Debian/Ubuntu):
+  $ sudo apt update && sudo apt install curl jq imagemagick zenity
+
+--------------------------------------------------------------------------------
+2. STRUKTURA KATALOGÓW
+--------------------------------------------------------------------------------
+Skrypt wymaga zachowania poniższej struktury plików (relatywnie do skryptu w 'src/'):
+
+  [katalog_glowny]/
+  ├── settings.config             <-- Plik konfiguracyjny (wymagany)
+  ├── src/
+  │   └── main.sh                 <-- Główny skrypt uruchomieniowy
+  ├── backgrounds/
+  │   └── full_hd/                <-- Tapety bazowe o nazwach zgodnych z kodami 
+  │                                   pogodowymi wttr.in (np. 113.jpg)
+  ├── temp/                       <-- Pliki tymczasowe generowane w locie
+  └── output/
+      └── wallpaper.png           <-- Gotowy plik wynikowy tapety
+
+--------------------------------------------------------------------------------
+3. KONFIGURACJA (settings.config)
+--------------------------------------------------------------------------------
+Przed uruchomieniem należy upewnić się, że plik `settings.config` znajduje się 
+w katalogu nadrzędnym względem skryptu i zawiera zmienną z domyślną lokalizacją:
+
+CONFIG_LOCATION="Warszawa"
+
+--------------------------------------------------------------------------------
+4. SKŁADNIA I PARAMETRY URUCHOMIENIA
+--------------------------------------------------------------------------------
+Użycie: ./main.sh [OPCJE]
+
+Parametry:
+  -h    Wyświetlenie pomocy i zakończenie działania.
+  -v    Wyświetlenie wersji skryptu.
+  -l    Zmiana lokalizacji w pliku konfiguracyjnym z poziomu terminala (CLI).
+  -g    Graficzna zmiana lokalizacji za pomocą okna dialogowego (Zenity).
+  -u    Aktualizacja pogody: pobranie danych z wttr.in, wygenerowanie widgetu 
+        i utworzenie wynikowej tapety.
+
+--------------------------------------------------------------------------------
+5. PRZYKŁADY UŻYCIA
+--------------------------------------------------------------------------------
+1. Wyświetlenie pomocy:
+   $ ./main.sh -h
+
+2. Standardowe odświeżenie pogody na tapecie:
+   $ ./main.sh -u
+
+3. Zmiana lokalizacji w trybie tekstowym i natychmiastowa aktualizacja:
+   $ ./main.sh -l -u
+
+4. Zmiana lokalizacji przez GUI i natychmiastowa aktualizacja:
+   $ ./main.sh -g -u
+
+--------------------------------------------------------------------------------
+6. LOGIKA DZIAŁANIA SKRYPTU (Flaga -u)
+--------------------------------------------------------------------------------
+1. Sprawdzenie dostępności pliku konfiguracyjnego settings.config.
+2. Pobranie danych pogodowych w formacie JSON z wttr.in.
+3. Wyciągnięcie parametrów (temperatura, wiatr, wilgotność, kod stanu) za pomocą jq.
+4. Dopasowanie tła z katalogu backgrounds/full_hd/ na podstawie kodu pogody.
+5. Pobranie ikony stanu pogody i wygenerowanie warstwy widgetu (ImageMagick).
+6. Nałożenie danych tekstowych i ikony na półprzezroczysty widget.
+7. Połączenie widgetu z tapetą bazową i zapisanie pliku wallpaper.png.
+
+--------------------------------------------------------------------------------
+7. ROZWIĄZYWANIE PROBLEMÓW
+--------------------------------------------------------------------------------
+* Problem: Błąd braku pliku konfiguracyjnego.
+  Rozwiązanie: Sprawdź, czy settings.config znajduje się dokładnie katalog wyżej 
+  względem skryptu main.sh.
+
+* Problem: Błędy ImageMagick lub brak tekstu na widgecie.
+  Rozwiązanie: Skrypt korzysta z fontów DejaVu. Upewnij się, że są zainstalowane:
+  $ sudo apt install fonts-dejavu-core
+
+* Problem: Tapeta nie odświeża się automatycznie na pulpicie.
+  Rozwiązanie: Skrypt generuje plik w `../output/wallpaper.png`. Należy ustawić 
+  ten plik jako stałe tło pulpitu w systemie lub odkomentować sekcję narzędzia 
+  gsettings na końcu skryptu (dla środowiska GNOME).
+================================================================================
