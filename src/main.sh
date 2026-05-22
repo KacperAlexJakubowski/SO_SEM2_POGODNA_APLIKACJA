@@ -156,13 +156,12 @@ if [ "$UPDATE_WEATHER" = true ]; then
             -composite \
             "${OUTPUT}"
 
-        # to test
         # # wallpaper setting
-        # WALLPAPER_FULL_PATH="TODO"
-        # # for light mode
-        # gsettings set org.gnome.desktop.background picture-uri "${WALLPAPER_FULL_PATH}"
-        # # for dark mode
-        # gsettings set org.gnome.desktop.background picture-uri-dark "${WALLPAPER_FULL_PATH}"
+        WALLPAPER_FULL_PATH="file:///media/sf_PROJECTS/Pogodna_aplikacja/output/wallpaper.png"
+        # for light mode
+        gsettings set org.gnome.desktop.background picture-uri "${WALLPAPER_FULL_PATH}"
+        # for dark mode
+        gsettings set org.gnome.desktop.background picture-uri-dark "${WALLPAPER_FULL_PATH}"
 
 
 elif [[ -z "$LOC" ]]; then
