@@ -25,14 +25,31 @@ source "$CONFIG_FILE"
 
 LOC=""
 UPDATE_WEATHER=false
-while getopts ":hvlu" opt; do
+while getopts ":hvlug" opt; do
     case ${opt} in
         h )
-            echo "Krótka pomoc"
+            echo "Skrypt do automatycznej aktualizacji tapety o bieżące informacje pogodowe."
+            echo ""
+            echo "Opcje informacyjne i pomoc:"
+            echo "  -h    Wyświetla tę szybką pomoc i kończy działanie."
+            echo "  -v    Wyświetla aktualną wersję skryptu i kończy działanie."
+            echo ""
+            echo "Opcje konfiguracji lokalizacji:"
+            echo "  -l    Zmienia lokalizację na nową wprowadzoną w terminalu (CLI)."
+            echo "  -g    Zmienia lokalizację za pomocą graficznego okna dialogowego (GUI Zenity)."
+            echo ""
+            echo "Opcje wykonawcze:"
+            echo "  -u    Pobiera aktualne dane pogodowe (wttr.in), generuje widget (ImageMagick)"
+            echo "        oraz tworzy nową tapetę wyjściową."
+            echo ""
+            echo "Przykłady użycia:"
+            echo "  $(basename "$0") -u          # Zwykłe odświeżenie pogody na tapecie"
+            echo "  $(basename "$0") -l -u       # Zmiana lokalizacji w CLI i natychmiastowy update"
+            echo "  $(basename "$0") -g -u       # Zmiana lokalizacji w GUI i natychmiastowy update"
             exit 0
             ;;
         v )
-            echo "Version: $VERSION"
+            echo "Wersja: $VERSION"
             exit 0
             ;;
         l )
@@ -43,6 +60,12 @@ while getopts ":hvlu" opt; do
             ;;
         u )
             UPDATE_WEATHER=true
+            ;;
+        g )
+            LOC=$(zenity --entry --title "Pogodna aplikacja - lokalizacja" --text "Wprowadź nazwę nowej lokalizacji:")
+            CONFIG_LOCATION=${LOC// /+}
+            sed -i "s#^CONFIG_LOCATION=.*#CONFIG_LOCATION=\"$LOC\"#" "$CONFIG_FILE"
+            zenity --info --title "Pogodna aplikacja - komunikat" --text "Pomyślnie zapisano nową lokalizację"
             ;;
         \? )
             echo "Nieprawidłowa opcja: -$OPTARG" >&2
